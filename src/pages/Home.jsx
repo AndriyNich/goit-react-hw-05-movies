@@ -8,10 +8,15 @@ const Home = () => {
   useEffect(() => {
     const abortController = new AbortController();
 
-    loadTrendList(abortController).then(data => {
-      console.log(data.data.results);
-      setMoviesList(data.data.results);
-    });
+    async function fetch() {
+      try {
+        const result = await loadTrendList(abortController);
+        setMoviesList(result.data.results);
+      } catch (err) {}
+    }
+
+    fetch();
+
     return () => {
       abortController.abort();
     };
