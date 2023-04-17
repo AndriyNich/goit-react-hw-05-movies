@@ -39,6 +39,13 @@ const MovieDetails = () => {
     return listGenres.map(({ name }) => name).join(', ');
   };
 
+  const poster = posterPath => {
+    if (posterPath !== null && posterPath.length > 0) {
+      return `https://image.tmdb.org/t/p/w500${posterPath}`;
+    }
+    return 'https://via.placeholder.com/320x480';
+  };
+
   return (
     <main>
       {Object.keys(data).length > 0 && (
@@ -53,7 +60,7 @@ const MovieDetails = () => {
           <WraperInfo>
             <img
               width="320"
-              src={`https://image.tmdb.org/t/p/w500${data['poster_path']}`}
+              src={poster(data['poster_path'])}
               alt={`poster ${data['title']}`}
             />
             <div>
