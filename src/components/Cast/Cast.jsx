@@ -44,7 +44,7 @@ const Cast = () => {
 
   return (
     <Fragment>
-      {data.length > 0 && (
+      {data.length > 0 ? (
         <List>
           {data.map(elem => (
             <ListItem key={elem.id}>
@@ -60,6 +60,8 @@ const Cast = () => {
             </ListItem>
           ))}
         </List>
+      ) : (
+        "We don't have any cast for this movie."
       )}
     </Fragment>
   );
