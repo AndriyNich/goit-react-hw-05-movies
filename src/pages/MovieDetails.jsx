@@ -1,23 +1,87 @@
-import { Suspense } from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import { Suspense, useState, useEffect } from 'react';
+import { AiOutlineArrowLeft } from 'react-icons/ai';
+import { Outlet, Link, useParams, useLocation } from 'react-router-dom';
+import { loadMovieFulInfo } from 'services/api';
+import {
+  Title,
+  Wraper,
+  WraperInfo,
+  GoBack,
+  WraperBtn,
+} from './MovieDetails.styled';
 
 const MovieDetails = () => {
-  return (
-    <div>
-      <div> MovieDetails </div>
-      <ul>
-        <li>
-          <Link to="cast">Cast</Link>
-        </li>
-        <li>
-          <Link to="reviews">Reviews</Link>
-        </li>
-      </ul>
+  const { id } = useParams();
+  const [data, setData] = useState({});
+  const location = useLocation();
 
-      <Suspense fallback={<div>Loading subpage...</div>}>
-        <Outlet />
-      </Suspense>
-    </div>
+  useEffect(() => {
+    const abortController = new AbortController();
+    async function fetch() {
+      try {
+        const result = await loadMovieFulInfo(id, abortController);
+        setData(result.data);
+      } catch (err) {}
+    }
+
+    fetch();
+
+    return () => {
+      abortController.abort();
+    };
+  }, [id]);
+
+  const score = data => {
+    return Math.round((data['popularity'] / data['vote_count']) * 100);
+  };
+
+  const genres = listGenres => {
+    return listGenres.map(({ name }) => name).join(', ');
+  };
+
+  return (
+    <main>
+      {Object.keys(data).length > 0 && (
+        <div>
+          <WraperBtn>
+            <GoBack to={location.state?.from ?? '/'}>
+              <AiOutlineArrowLeft />
+              Go back
+            </GoBack>
+          </WraperBtn>
+
+          <WraperInfo>
+            <img
+              width="320"
+              src={`https://image.tmdb.org/t/p/w500${data['poster_path']}`}
+              alt={`poster ${data['title']}`}
+            />
+            <div>
+              <h2>{data['title']}</h2>
+              <p>{`User Score: ${score(data)}%`}</p>
+              <h3>Overview</h3>
+              <p>{data['overview']}</p>
+              <h3>Gemres</h3>
+              <p>{genres(data['genres'])}</p>
+            </div>
+          </WraperInfo>
+          <Wraper>
+            <Title>Additional information</Title>
+            <ul>
+              <li>
+                <Link to="cast">Cast</Link>
+              </li>
+              <li>
+                <Link to="reviews">Reviews</Link>
+              </li>
+            </ul>
+          </Wraper>
+          <Suspense fallback={<div>Loading subpage...</div>}>
+            <Outlet />
+          </Suspense>
+        </div>
+      )}
+    </main>
   );
 };
 
